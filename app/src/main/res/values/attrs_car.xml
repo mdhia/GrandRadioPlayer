@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Android Auto reads these attributes by name from the theme referenced by the
+    "com.google.android.gms.car.application.theme" meta-data in AndroidManifest.xml.
+    They are declared here so the theme below compiles inside this app.
+-->
+<resources>
+    <attr name="carColorPrimary" format="color" />
+    <attr name="carColorPrimaryDark" format="color" />
+    <attr name="carColorAccent" format="color" />
+</resources>
+

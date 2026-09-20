@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Car-side theming for Android Auto / Android Automotive OS.
+
+    Media apps can't draw their own UI in the car - the head unit renders fixed, driver-optimised
+    templates (browse grid + now-playing screen). What *is* customisable is the color scheme, so
+    these values mirror the phone app's "neon night" palette (see ui/theme/Color.kt) to keep the
+    car experience visually consistent with the Compose UI: near-black background with a violet
+    accent used for the progress slider, buttons and highlights.
+-->
+<resources>
+    <style name="CarTheme" parent="android:Theme">
+        <!-- NightBase (#0B0713) - the app's near-black background. -->
+        <item name="carColorPrimary">#FF0B0713</item>
+        <!-- Pure black, used behind the now-playing cover. -->
+        <item name="carColorPrimaryDark">#FF000000</item>
+        <!-- NeonViolet (#9B6BFF) - progress slider, active controls, selection highlights. -->
+        <item name="carColorAccent">#FF9B6BFF</item>
+    </style>
+</resources>
+

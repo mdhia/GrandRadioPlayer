@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Declares this app as a media app to Android Auto / Android Automotive OS. Without this,
+    the car head unit will refuse to surface RadioPlaybackService's MediaBrowserService at all,
+    regardless of the <service> intent-filters in AndroidManifest.xml.
+-->
+<automotiveApp>
+    <uses name="media" />
+</automotiveApp>
+

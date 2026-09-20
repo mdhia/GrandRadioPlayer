@@ -1,0 +1,81 @@
+name: Build & Release APK
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '**/*.kt'
+      - '**/*.kts'
+      - '**/*.java'
+      - '**/*.xml'
+      - '.github/workflows/build-release.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Decode Keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            KEYSTORE_PATH="$RUNNER_TEMP/release.keystore"
+            # --ignore-garbage ensures that stray CR/LF or whitespace characters
+            # accidentally contained in the secret (e.g. copied on Windows) are
+            # ignored during decoding instead of corrupting the keystore's binary data.
+            echo "$KEYSTORE_BASE64" | base64 --decode --ignore-garbage > "$KEYSTORE_PATH"
+            echo "KEYSTORE_FILE=$KEYSTORE_PATH" >> "$GITHUB_ENV"
+          else
+            echo "No KEYSTORE_BASE64 secret set - building an unsigned APK."
+          fi
+
+      - name: Build Release APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Prepare APK with timestamp name
+        id: apk
+        run: |
+          TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
+          APK_SOURCE=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
+          NEW_NAME="ParkIt-${TIMESTAMP}.apk"
+          cp "$APK_SOURCE" "$NEW_NAME"
+          echo "apk_name=$NEW_NAME" >> "$GITHUB_OUTPUT"
+          echo "timestamp=$TIMESTAMP" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ steps.apk.outputs.timestamp }}
+          name: ParkIt ${{ steps.apk.outputs.timestamp }}
+          body: |
+            Automatic build triggered by commit ${{ github.sha }}.
+
+            **Commit message:** ${{ github.event.head_commit.message }}
+          files: ${{ steps.apk.outputs.apk_name }}
+          generate_release_notes: true
+
+
