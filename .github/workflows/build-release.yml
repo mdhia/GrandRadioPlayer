@@ -61,7 +61,7 @@ jobs:
         run: |
           TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
           APK_SOURCE=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
-          NEW_NAME="ParkIt-${TIMESTAMP}.apk"
+          NEW_NAME="GrandRadioPlayer-${TIMESTAMP}.apk"
           cp "$APK_SOURCE" "$NEW_NAME"
           echo "apk_name=$NEW_NAME" >> "$GITHUB_OUTPUT"
           echo "timestamp=$TIMESTAMP" >> "$GITHUB_OUTPUT"
@@ -70,7 +70,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ steps.apk.outputs.timestamp }}
-          name: ParkIt ${{ steps.apk.outputs.timestamp }}
+          name: GrandRadioPlayer ${{ steps.apk.outputs.timestamp }}
           body: |
             Automatic build triggered by commit ${{ github.sha }}.
 
